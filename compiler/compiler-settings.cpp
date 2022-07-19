@@ -16,6 +16,7 @@
 #include "common/wrappers/mkdir_recursive.h"
 #include "common/wrappers/to_array.h"
 
+#include "common/kprintf.h"
 #include "compiler/stage.h"
 #include "compiler/threading/tls.h"
 #include "compiler/utils/string-utils.h"
@@ -125,14 +126,14 @@ void append_if_doesnt_contain(std::string &ld_flags, const T &libs, vk::string_v
   }
 }
 
-void append_curl(std::string &cxx_flags, std::string &ld_flags) noexcept {
+void append_curl(std::string &cxx_flags, std::string &ld_flags, [[maybe_unused]] const std::string &sys_root) noexcept {
   if (!contains_lib(ld_flags, "curl")) {
 #if defined(__APPLE__)
     static_cast<void>(cxx_flags);
     ld_flags += " -lcurl";
 #else
     // TODO make it as an option?
-    const std::string curl_dir = "/opt/curl7600";
+    const std::string curl_dir = sys_root + "/opt/curl7600";
     cxx_flags += " -I" + curl_dir + "/include/";
     ld_flags += " " + curl_dir + "/lib/libcurl.a";
 #endif
@@ -279,11 +280,24 @@ void CompilerSettings::init() {
      << " -iquote " << kphp_src_path.get() << "objs/generated/auto/runtime";
   ss << " -Wall -fwrapv -Wno-parentheses -Wno-trigraphs";
   ss << " -fno-strict-aliasing -fno-omit-frame-pointer";
-#ifdef __x86_64__
-  ss << " -march=sandybridge";
-#elif __aarch64__
-  ss << " -march=armv8.2-a+crypto";
-#endif
+  if (!target.get().empty()) {
+    ss << " --target=" << target.get();
+  }
+  if (!sys_root.get().empty()) {
+    ss << " --sysroot=" << sys_root.get();
+  }
+  if (!march.get().empty()) {
+    ss << " -march=" << march.get();
+  } else {
+  #ifdef __x86_64__
+    ss << " -march=sandybridge";
+  #elif __aarch64__
+    ss << " -march=armv8.2-a+crypto";
+  #endif
+  }
+  if (!mcpu.get().empty()) {
+    ss << " -mcpu=" << mcpu.get();
+  }
   if (!no_pch.get()) {
     ss << " -Winvalid-pch -fpch-preprocess";
   }
@@ -309,7 +323,7 @@ void CompilerSettings::init() {
   remove_extra_spaces(extra_ld_flags.value_);
 
   ld_flags.value_ = extra_ld_flags.get();
-  append_curl(cxx_default_flags, ld_flags.value_);
+  append_curl(cxx_default_flags, ld_flags.value_, sys_root.get());
   append_apple_options(cxx_default_flags, ld_flags.value_);
   std::vector<vk::string_view> external_static_libs{"pcre", "re2", "yaml-cpp", "h3", "ssl", "z", "zstd", "nghttp2", "kphp-timelib"};
 
@@ -319,7 +333,7 @@ void CompilerSettings::init() {
   // kphp-timelib is usually installed in /usr/local/lib;
   // LDD may not find a library in /usr/local/lib if we don't add it here
   // TODO: can we avoid this hardcoded library path?
-  ld_flags.value_ += " -L /usr/local/lib";
+  ld_flags.value_ += " -L " + sys_root.get() +  "/usr/local/lib";
 #endif
 
 #if defined(__APPLE__) && defined(__arm64__)

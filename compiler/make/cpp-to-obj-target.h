@@ -17,7 +17,7 @@ public:
     std::stringstream ss;
     const auto cpp_list = dep_list();
     ss << settings->cxx.get() <<
-       " -c -o " << target() <<
+       " -c -o " << output() <<
        " " << cpp_list;
     const auto &cxx_flags = get_file()->compile_with_debug_info_flag ? settings->cxx_flags_with_debug : settings->cxx_flags_default;
     // make #include "runtime-headers.h" capture generated pch file

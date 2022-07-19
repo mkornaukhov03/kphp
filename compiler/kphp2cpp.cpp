@@ -167,6 +167,14 @@ std::string get_default_cxx() noexcept {
 #endif
 }
 
+std::string get_default_march() noexcept {
+#ifdef __x86_64__
+  return "sandybridge";
+#elif __aarch64__
+  return "armv8.2-a+crypto+fp16+rcpc+dotprod+ssbs";
+#endif
+}
+
 std::string with_extra_flag(std::string flags) {
 #if ASAN_ENABLED
   flags.append(" -fsanitize=address");
@@ -297,6 +305,10 @@ int main(int argc, char *argv[]) {
              "require-functions-typing", "KPHP_REQUIRE_FUNCTIONS_TYPING");
   parser.add("Require class typing (1 - @var / default value is mandatory, 0 - auto infer or check if exists)", settings->require_class_typing,
              "require-class-typing", "KPHP_REQUIRE_CLASS_TYPING");
+  parser.add("Define the target architecture (Proxy option for clang)", settings->target, "target", "KPHP_TARGET");
+  parser.add("Root path with libraries and headers that are specific to your target (Proxy option for clang)", settings->sys_root, "sysroot", "KPHP_SYSROOT");
+  parser.add("march", settings->march, "march", "KPHP_MARCH", get_default_march());
+  parser.add("mcpu", settings->mcpu, "mcpu", "KPHP_MCPU");
 
   parser.add_implicit_option("Linker flags", settings->ld_flags);
   parser.add_implicit_option("Incremental linker flags", settings->incremental_linker_flags);

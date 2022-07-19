@@ -166,6 +166,11 @@ public:
   KphpOption<bool> no_index_file;
   KphpOption<bool> show_progress;
 
+  KphpOption<std::string> target;
+  KphpOption<std::string> sys_root;
+  KphpOption<std::string> march;
+  KphpOption<std::string> mcpu;
+
   CxxFlags cxx_flags_default;
   CxxFlags cxx_flags_with_debug;
   KphpImplicitOption ld_flags;

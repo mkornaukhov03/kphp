@@ -24,8 +24,17 @@ public:
     std::string_view close_dep{" -Wl,--end-group -Wl,--no-whole-archive "};
 #endif
     std::stringstream ss;
-    ss << settings->cxx.get() << " " << settings->cxx_toolchain_option.get()
-       << " -o " << target() << open_dep << dep_list() << close_dep << settings->ld_flags.get();
+    ss << settings->cxx.get() << " " << settings->cxx_toolchain_option.get();
+//       << " -fuse-ld=lld-11"
+//       << " --target=aarch64-pc-linux"
+//       << " --sysroot=/data/arm_sys_root"
+    std::string target = settings->target.get();
+    std::string sysroot = settings->sys_root.get();
+    if (!target.empty() && !sysroot.empty()) {
+      ss << " --target=" << target <<
+        " --sysroot=" << sysroot;
+    }
+    ss << " -o " << output() << open_dep << dep_list() << close_dep << settings->ld_flags.get();
     if (need_libdl_) {
       ss << " -ldl";
     }
