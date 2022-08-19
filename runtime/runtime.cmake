@@ -42,6 +42,10 @@ prepend(KPHP_RUNTIME_PDO_MYSQL_SOURCES pdo/mysql/
         mysql_pdo_emulated_statement.cpp)
 endif()
 
+prepend(KPHP_RUNTIME_PDO_PGSQL_SOURCES pdo/pgsql/
+        pgsql_pdo_driver.cpp
+        pgsql_pdo_emulated_statement.cpp)
+
 prepend(KPHP_RUNTIME_SOURCES ${BASE_DIR}/runtime/
         ${KPHP_RUNTIME_DATETIME_SOURCES}
         ${KPHP_RUNTIME_MEMORY_RESOURCE_SOURCES}
@@ -50,6 +54,7 @@ prepend(KPHP_RUNTIME_SOURCES ${BASE_DIR}/runtime/
         ${KPHP_RUNTIME_SPL_SOURCES}
         ${KPHP_RUNTIME_PDO_SOURCES}
         ${KPHP_RUNTIME_PDO_MYSQL_SOURCES}
+        ${KPHP_RUNTIME_PDO_PGSQL_SOURCES}
         allocator.cpp
         array_functions.cpp
         bcmath.cpp
@@ -134,7 +139,7 @@ target_link_libraries(kphp-full-runtime PUBLIC ${RUNTIME_LIBS})
 set_target_properties(kphp-full-runtime PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${OBJS_DIR})
 
 prepare_cross_platform_libs(RUNTIME_LINK_TEST_LIBS pcre nghttp2 kphp-timelib)
-set(RUNTIME_LINK_TEST_LIBS vk::flex_data_static OpenSSL::SSL ${CURL_LIB} ${NUMA_LIB} ${RUNTIME_LINK_TEST_LIBS} ${EPOLL_SHIM_LIB} ${ICONV_LIB} ${RT_LIB})
+set(RUNTIME_LINK_TEST_LIBS vk::flex_data_static OpenSSL::SSL pq ${CURL_LIB} ${NUMA_LIB} ${RUNTIME_LINK_TEST_LIBS} ${EPOLL_SHIM_LIB} ${ICONV_LIB} ${RT_LIB})
 
 if (PDO_DRIVER_MYSQL)
     list(APPEND RUNTIME_LINK_TEST_LIBS mysqlclient)
