@@ -137,11 +137,14 @@ jobs:
 
     - name: Setup Environment
       run: |
-        brew install re2c cmake coreutils glib-openssl libiconv re2 yaml-cpp mysql msgpack-cxx zstd googletest php@7.4
+        brew install re2c cmake coreutils glib-openssl libiconv re2 yaml-cpp mysql libpq postgresql@14 msgpack-cxx zstd googletest php@7.4
         brew link --overwrite php@7.4
+        brew link libpq
         pip3 install jsonschema
         rm -rf /usr/local/opt/openssl
         ln -sF /usr/local/Cellar/openssl@1.1/1.1.1q /usr/local/opt/openssl
+        ln -sF /usr/local/include/postgresql@14 /usr/local/include/postgresql
+        ln -sF /usr/local/Cellar/libpq/14.5 /usr/local/opt/libpq
 
     - name: Build Uber h3
       run: cmake -DCMAKE_CXX_COMPILER=${{matrix.compiler}} -DCMAKE_CXX_STANDARD=${{matrix.cpp}} -S $GITHUB_WORKSPACE/h3 -B ${{runner.workspace}}/h3/build && make install -C ${{runner.workspace}}/h3/build -j$(nproc) all
