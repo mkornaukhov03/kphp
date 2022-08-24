@@ -3,5 +3,7 @@ psutil
 requests-toolbelt
 pytest
 pytest-mysql
+pytest_postgresql
+psycopg
 pytest-xdist
 zstandard
