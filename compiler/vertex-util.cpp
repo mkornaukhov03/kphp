@@ -158,3 +158,37 @@ VertexAdaptor<meta_op_unary> VertexUtil::create_conv_to_lval(PrimitiveType targe
   }
 }
 
+VertexPtr VertexUtil::unwrap_array_value(VertexPtr v) {
+  if (auto as_conv = v.try_as<op_conv_array>()) {
+    v = as_conv->expr();
+  }
+  return get_actual_value(v);
+}
+
+VertexPtr VertexUtil::unwrap_int_value(VertexPtr v) {
+  if (auto as_conv = v.try_as<op_conv_int>()) {
+    v = as_conv->expr();
+  }
+  return get_actual_value(v);
+}
+
+VertexPtr VertexUtil::unwrap_float_value(VertexPtr v) {
+  if (auto as_conv = v.try_as<op_conv_float>()) {
+    v = as_conv->expr();
+  }
+  return get_actual_value(v);
+}
+
+VertexPtr VertexUtil::unwrap_string_value(VertexPtr v) {
+  if (auto as_conv = v.try_as<op_conv_string>()) {
+    v = as_conv->expr();
+  }
+  return get_actual_value(v);
+}
+
+VertexPtr VertexUtil::unwrap_bool_value(VertexPtr v) {
+  if (auto as_conv = v.try_as<op_conv_bool>()) {
+    v = as_conv->expr();
+  }
+  return get_actual_value(v);
+}

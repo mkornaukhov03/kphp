@@ -159,8 +159,10 @@ public:
   inline bool try_to_float_as_php8(double *val) const;
 
   inline mixed to_numeric() const;
+  inline static bool to_bool(const char *s, size_type size);
   inline bool to_bool() const;
   inline static int64_t to_int(const char *s, size_type l);
+  inline int64_t to_int(int64_t start, int64_t l) const;
   inline int64_t to_int() const;
   inline double to_float() const;
   inline const string &to_string() const;
@@ -174,12 +176,14 @@ public:
 
   inline int64_t hash() const;
 
+  static inline int64_t compare(const string &str, const char *other, size_type other_size);
   inline int64_t compare(const string &str) const;
 
   inline bool isset(int64_t index) const;
+  static inline int64_t get_correct_offset(size_type size, int64_t offset);
   inline int64_t get_correct_index(int64_t index) const;
-  inline int64_t get_correct_offset(int64_t index) const;
-  inline int64_t get_correct_offset_clamped(int64_t index) const;
+  inline int64_t get_correct_offset(int64_t offset) const;
+  inline int64_t get_correct_offset_clamped(int64_t offset) const;
   inline const string get_value(int64_t int_key) const;
   inline const string get_value(const string &string_key) const;
   inline const string get_value(const mixed &v) const;
@@ -197,6 +201,34 @@ public:
   inline static string make_const_string_on_memory(const char *str, size_type len, void *memory, size_t memory_size);
 
   inline void destroy() __attribute__((always_inline));
+};
+
+// tmp_string is not a real string: it can't be used in a place where string types are expected;
+// it can be a result of compiler-inserted evaluation that should be then recognized by the
+// runtime functions overloading
+//
+// in a sense, it's like a string view, but only valid for a single expression evaluation
+struct tmp_string {
+  const char *data = nullptr;
+  string::size_type size = 0;
+
+  tmp_string() = default;
+  tmp_string(const char *data, string::size_type size) : data{data}, size{size} {}
+  explicit tmp_string(const string &s) : data{s.c_str()}, size{s.size()} {}
+
+  bool to_bool() const noexcept {
+    return data && string::to_bool(data, size);
+  }
+
+  string to_string() const noexcept {
+    if (!data) {
+      return {}; // an empty string
+    }
+    return string(data, size);
+  }
+
+  bool has_value() const noexcept { return data != nullptr; }
+  bool empty() const noexcept { return size == 0; }
 };
 
 inline bool operator==(const string &lhs, const string &rhs);
@@ -225,3 +257,34 @@ inline string::size_type max_string_size(const array<T> &) __attribute__((always
 
 template<class T>
 inline string::size_type max_string_size(const Optional<T> &v) __attribute__((always_inline));
+
+inline bool wrap_substr_args(string::size_type str_len, int64_t &start, int64_t &length) {
+  if (length < 0 && -length > str_len) {
+    return false;
+  }
+
+  if (length > str_len) {
+    length = str_len;
+  }
+
+  if (start > str_len) {
+    return false;
+  }
+
+  if (length < 0 && length < start - str_len) {
+    return false;
+  }
+  start = string::get_correct_offset(str_len, start);
+  if (length < 0) {
+    length = (str_len - start) + length;
+    if (length < 0) {
+      length = 0;
+    }
+  }
+
+  if (length > str_len - start) {
+    length = str_len - start;
+  }
+
+  return true;
+}

@@ -1,0 +1,62 @@
+;;; Function specialization rules
+
+;; Using a simple pattern matching in combination with constant folding,
+;; replace functions with their specialized forms.
+;; The specialized forms have better typing.
+
+(func_call {"microtime"})         => (func_call {"_microtime_string"})
+(func_call {"microtime"} (false)) => (func_call {"_microtime_string"})
+(func_call {"microtime"} (true))  => (func_call {"_microtime_float"})
+
+(func_call {"hrtime"})         => (func_call {"_hrtime_array"})
+(func_call {"hrtime"} (false)) => (func_call {"_hrtime_array"})
+(func_call {"hrtime"} (true))  => (func_call {"_hrtime_int"})
+
+;;; Constant folding rules
+
+(func_call {"ord"} arg:(string))
+  where { arg->str_val.size() == 1 }
+  => (int_const { std::to_string(static_cast<unsigned char>(arg->str_val[0])) })
+
+(func_call {"chr"} arg:(int_const))
+  => (string { std::string(1, std::stol(arg->str_val)) })
+
+(func_call {"strlen"} arg:(string))
+  => (int_const { std::to_string(arg->str_val.size()) })
+
+(func_call {"count"} arg:(array ...))
+  => (int_const { std::to_string(arg->args().size()) })
+
+;;; Substr (and alike) optimization rules
+
+(conv_bool c:(func_call args...))
+  where { c->func_id->has_tmp_string_specialization() }
+  => (conv_bool (func_call {"_tmp_" + c->func_id->name} args))
+
+(conv_int c:(func_call args...))
+  where { c->func_id->has_tmp_string_specialization() }
+  => (conv_int (func_call {"_tmp_" + c->func_id->name} args))
+
+(set_dot lhs c:(func_call args...))
+  where { c->func_id->has_tmp_string_specialization() }
+  => (set_dot lhs (func_call {"_tmp_" + c->func_id->name} args))
+
+(index arr c:(func_call args...))
+  where { c->func_id->has_tmp_string_specialization() }
+  => (index arr (func_call {"_tmp_" + c->func_id->name} args))
+
+;;; Explode optimization rules
+
+(index (func_call {"explode"} delim s) k:(int_const))
+  => (func_call {"_explode_nth"} delim s k)
+
+;; explode($delim, $s, 1) doesn't make sense, so we optimize only calls without it
+(list (list_keyval (int_const {"0"}) v) (func_call {"explode"} delim s))
+  => (set v (func_call {"_explode_1"} delim s))
+
+;;; String conversion optimization rules
+
+(string_build x) => (conv_string x)
+
+(concat (string {""}) x) => (conv_string x)
+(concat x (string {""})) => (conv_string x)
