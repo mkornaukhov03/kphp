@@ -310,7 +310,7 @@ void CompilerSettings::init() {
   ld_flags.value_ = extra_ld_flags.get();
   append_curl(cxx_default_flags, ld_flags.value_);
   append_apple_options(cxx_default_flags, ld_flags.value_);
-  std::vector<vk::string_view> external_static_libs{"pcre", "re2", "yaml-cpp", "h3", "ssl", "z", "zstd", "nghttp2", "kphp-timelib", "pq"};
+  std::vector<vk::string_view> external_static_libs{"pcre", "re2", "yaml-cpp", "h3", "ssl", "z", "zstd", "nghttp2", "kphp-timelib"};
 
 #ifdef KPHP_TIMELIB_LIB_DIR
   ld_flags.value_ += " -L" KPHP_TIMELIB_LIB_DIR;
@@ -327,13 +327,27 @@ void CompilerSettings::init() {
   ld_flags.value_ += " /opt/homebrew/lib/libucontext.a";
 #endif
 
-  std::vector<vk::string_view> external_libs{"pthread", "crypto", "m", "dl", "pq"};
+  std::vector<vk::string_view> external_libs{"pthread", "crypto", "m", "dl", "ldap", "gssapi_krb5"};
 
 #ifdef PDO_DRIVER_MYSQL
 #ifdef PDO_LIBS_STATIC_LINKING
   external_static_libs.emplace_back("mysqlclient");
 #else
   external_libs.emplace_back("mysqlclient");
+#endif
+#endif
+
+#ifdef PDO_DRIVER_PGSQL
+#ifdef PDO_LIBS_STATIC_LINKING
+  // TODO: can we avoid this hardcoded library path?
+  ld_flags.value_ += " -L /usr/lib/postgresql/";
+  ld_flags.value_ += std::to_string(PDO_DRIVER_PGSQL_VERSION);
+  ld_flags.value_ += "/lib/ ";
+  external_static_libs.emplace_back("pq");
+  external_static_libs.emplace_back("pgcommon");
+  external_static_libs.emplace_back("pgport");
+#else
+  external_libs.emplace_back("pq");
 #endif
 #endif
 
@@ -346,10 +360,6 @@ void CompilerSettings::init() {
   external_static_libs.emplace_back("numa");
   external_static_libs.emplace_back("vk-flex-data");
   append_if_doesnt_contain(ld_flags.value_, external_static_libs, "-l:lib", ".a");
-  ///for postgres
-  ld_flags.value_ += " -L /usr/lib/postgresql/14/lib/ ";
-  std::vector<vk::string_view> pgsql_static_libs{"pgcommon", "pgport"};
-  append_if_doesnt_contain(ld_flags.value_, pgsql_static_libs, "-l:lib", ".a");
   external_libs.emplace_back("rt");
 #endif
   append_if_doesnt_contain(ld_flags.value_, external_libs, "-l");

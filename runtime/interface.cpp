@@ -2329,7 +2329,9 @@ static void free_runtime_libs() {
 #ifdef PDO_DRIVER_MYSQL
   database_drivers::free_mysql_lib();
 #endif
+#ifdef PDO_DRIVER_PGSQL
   database_drivers::free_pgsql_lib();
+#endif
   vk::singleton<database_drivers::Adaptor>::get().reset();
   free_interface_lib();
   hard_reset_var(JsonEncoderError::msg);

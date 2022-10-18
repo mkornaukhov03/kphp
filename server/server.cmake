@@ -50,12 +50,14 @@ prepend(KPHP_DATABASE_DRIVERS_MYSQL_SOURCES ${BASE_DIR}/server/database-drivers/
         mysql-resources.cpp)
 endif()
 
+if (PDO_DRIVER_PGSQL)
 prepend(KPHP_DATABASE_DRIVERS_PGSQL_SOURCES ${BASE_DIR}/server/database-drivers/pgsql/
         pgsql.cpp
         pgsql-request.cpp
         pgsql-connector.cpp
         pgsql-response.cpp
         pgsql-resources.cpp)
+endif()
 
 set(KPHP_SERVER_ALL_SOURCES
     ${KPHP_SERVER_SOURCES}

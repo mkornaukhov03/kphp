@@ -14,7 +14,7 @@ RUN apt-get update && \
     pip3 install wheel && \
     apt-get install -y --no-install-recommends curl-kphp-vk kphp-timelib libuber-h3-dev libfmt-dev libgtest-dev libgmock-dev libre2-dev libpcre3-dev \
       libzstd-dev libyaml-cpp-dev libnghttp2-dev zlib1g-dev php7.4-dev mysql-server libmysqlclient-dev libldap-dev libkrb5-dev \
-      postgresql-14 postgresql-server-dev-14 libpq-dev libnuma-dev composer unzip && \
+      postgresql postgresql-server-dev-all libpq-dev libnuma-dev composer unzip && \
     pip3 install portalocker psutil requests-toolbelt pytest pytest-xdist pytest-mysql pytest-postgresql psycopg zstandard && \
     rm -rf /var/lib/apt/lists/*
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <postgresql/libpq-fe.h>
-
 #include "runtime/kphp_core.h"
 #include "runtime/pdo/abstract_pdo_statement.h"
 

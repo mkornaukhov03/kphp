@@ -25,7 +25,11 @@ class_instance<C$PDO> f$PDO$$__construct(const class_instance<C$PDO> &v$this, co
     php_critical_error("PDO MySQL driver is disabled");
 #endif
   } else if (driver_name == string{"pgsql"}) {
+#ifdef PDO_DRIVER_PGSQL
     v$this.get()->driver = std::make_unique<pdo::pgsql::PgsqlPdoDriver>();
+#else
+    php_critical_error("PDO pgSQL driver is disabled");
+#endif
   }
   else {
     php_critical_error("Unknown PDO driver name: %s", driver_name.c_str());

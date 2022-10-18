@@ -83,10 +83,14 @@ install(FILES ${AUTO_DIR}/runtime/runtime-headers.h
         DESTINATION ${INSTALL_KPHP_SOURCE}/objs/generated/auto/runtime/)
 
 set(CPACK_DEBIAN_KPHP_PACKAGE_DEPENDS "vk-flex-data, curl-kphp-vk, libuber-h3, libpcre3-dev, libre2-dev, libyaml-cpp-dev, libssl-dev, zlib1g-dev, \
-                                       libzstd-dev, g++, libnghttp2-dev, kphp-timelib, libpq-dev, libnuma-dev")
+                                       libzstd-dev, g++, libnghttp2-dev, kphp-timelib, libnuma-dev")
 
 if (PDO_DRIVER_MYSQL)
     set(CPACK_DEBIAN_KPHP_PACKAGE_DEPENDS "${CPACK_DEBIAN_KPHP_PACKAGE_DEPENDS}, libmysqlclient-dev")
+endif()
+
+if (PDO_DRIVER_PGSQL)
+    set(CPACK_DEBIAN_KPHP_PACKAGE_DEPENDS "${CPACK_DEBIAN_KPHP_PACKAGE_DEPENDS}, libpq-dev")
 endif()
 
 set(CPACK_DEBIAN_KPHP_PACKAGE_RECOMMENDS "php7.4-vkext, vk-tl-tools")
