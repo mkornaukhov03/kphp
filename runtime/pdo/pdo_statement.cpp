@@ -19,7 +19,7 @@ mixed f$PDOStatement$$fetch(const class_instance<C$PDOStatement> &v$this) noexce
 array<mixed> f$PDOStatement$$fetchAll(const class_instance<C$PDOStatement> &v$this) noexcept {
   array<mixed> res;
   mixed row;
-  while (f$boolval(row = f$PDOStatement$$fetch(v$this))) { // return not empty array on exec query as php
+  while (f$boolval(row = f$PDOStatement$$fetch(v$this))) {
     res.emplace_back(std::move(row));
   };
   return res;

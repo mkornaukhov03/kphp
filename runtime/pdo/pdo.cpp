@@ -118,7 +118,7 @@ array<mixed> f$PDO$$errorInfo(const class_instance<C$PDO> &v$this) {
 
   array<mixed> res(array_size{3, 0, true});
   res[0] = sqlstate.val();
-  res[1] = error_code == 0 ? mixed() : error_code; //make behavior like in php
+  res[1] = error_code == 0 ? mixed() : error_code;
   res[2] = strcmp(error_msg, "") == 0 ? mixed() : string{error_msg};
   return res;
 }

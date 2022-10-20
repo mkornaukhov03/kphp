@@ -327,7 +327,7 @@ void CompilerSettings::init() {
   ld_flags.value_ += " /opt/homebrew/lib/libucontext.a";
 #endif
 
-  std::vector<vk::string_view> external_libs{"pthread", "crypto", "m", "dl", "ldap", "gssapi_krb5"};
+  std::vector<vk::string_view> external_libs{"pthread", "crypto", "m", "dl"};
 
 #ifdef PDO_DRIVER_MYSQL
 #ifdef PDO_LIBS_STATIC_LINKING
@@ -340,12 +340,13 @@ void CompilerSettings::init() {
 #ifdef PDO_DRIVER_PGSQL
 #ifdef PDO_LIBS_STATIC_LINKING
   // TODO: can we avoid this hardcoded library path?
-  ld_flags.value_ += " -L /usr/lib/postgresql/";
-  ld_flags.value_ += std::to_string(PDO_DRIVER_PGSQL_VERSION);
-  ld_flags.value_ += "/lib/ ";
+  ld_flags.value_ += std::string(" -L /usr/lib/postgresql/") + std::to_string(PDO_DRIVER_PGSQL_VERSION) + std::string("/lib/ ");
   external_static_libs.emplace_back("pq");
   external_static_libs.emplace_back("pgcommon");
   external_static_libs.emplace_back("pgport");
+  // TODO: can we avoid dynamic linking in static linking?
+  external_libs.emplace_back("ldap");
+  external_libs.emplace_back("gssapi_krb5");
 #else
   external_libs.emplace_back("pq");
 #endif

@@ -15,7 +15,7 @@ namespace pdo::pgsql {
 
 void PgsqlPdoDriver::connect(const class_instance<C$PDO> &v$this __attribute__((unused)), const string &connection_string, const Optional<string> &username,
                              const Optional<string> &password, const Optional<array<mixed>> &options) noexcept {
-  array<string> connection_string_parts = explode(';', connection_string); //add spaces support
+  array<string> connection_string_parts = explode(';', connection_string);
   string conninfo{};
 
   for (const auto &it : connection_string_parts) {

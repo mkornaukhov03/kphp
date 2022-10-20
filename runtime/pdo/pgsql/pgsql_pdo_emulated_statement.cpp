@@ -49,14 +49,13 @@ bool PgsqlPdoEmulatedStatement::execute(const class_instance<C$PDOStatement> &v$
   return start_resumable<bool>(new ExecuteResumable(this, v$this.get()->timeout_sec));
 }
 
-// PQsetSingleRowMode?
 mixed PgsqlPdoEmulatedStatement::fetch(const class_instance<C$PDOStatement> &) noexcept {
   PGresult *pGresult = response->res;
   assert(LIB_PGSQL_CALL(PQresultStatus(pGresult)) == PGRES_TUPLES_OK || PQresultStatus(pGresult) == PGRES_COMMAND_OK);
   if (LIB_PGSQL_CALL(PQresultStatus(pGresult)) == PGRES_COMMAND_OK) {
     return array<mixed>();
   } else if (processed_row + 1 == LIB_PGSQL_CALL(PQntuples(pGresult))) {
-    return false; // for fetch_all
+    return false;
   }
 
   ++processed_row;
