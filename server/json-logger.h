@@ -11,6 +11,9 @@
 #include "common/smart_ptrs/singleton.h"
 #include "common/wrappers/string_view.h"
 
+namespace tracing {
+class SpanRecorder;
+} // namespace tracing
 
 class JsonLogger : vk::not_copyable {
 public:
@@ -25,6 +28,9 @@ public:
   void set_tags(vk::string_view tags) noexcept;
   void set_extra_info(vk::string_view extra_info) noexcept;
   void set_env(vk::string_view env) noexcept;
+
+  // It's not async signal safe!
+  void write_trace(const tracing::SpanRecorder *span_recorder) noexcept;
 
   // ATTENTION: this functions are used in signal handlers, therefore they are expected to be safe for them
   // Details: https://man7.org/linux/man-pages/man7/signal-safety.7.html

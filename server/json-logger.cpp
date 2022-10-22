@@ -2,6 +2,7 @@
 // Copyright (c) 2020 LLC «V Kontakte»
 // Distributed under the GPL v3 License, see LICENSE.notice.txt
 
+#include <chrono>
 #include <cstring>
 #include <cinttypes>
 #include <execinfo.h>
@@ -11,6 +12,8 @@
 #include "common/algorithms/find.h"
 #include "common/fast-backtrace.h"
 #include "common/wrappers/likely.h"
+#include "runtime/tracing/span.h"
+#include "runtime/tracing/span_recorder.h"
 #include "server/json-logger.h"
 #include "server/php-engine-vars.h"
 
@@ -265,6 +268,54 @@ void JsonLogger::write_stack_overflow_log(int type) noexcept {
   std::array<void *, 64> trace{};
   const int trace_size = fast_backtrace_without_recursions(trace.data(), trace.size());
   write_log("Stack overflow", type, time(nullptr), trace.data(), trace_size, true);
+}
+
+void JsonLogger::write_trace(const tracing::SpanRecorder *span_recorder) noexcept {
+  if (json_log_fd_ <= 0) {
+    return;
+  }
+
+  auto *json_out_it = buffers_.begin();
+  for (; json_out_it != buffers_.end() && !json_out_it->try_start_json(); ++json_out_it) {
+  }
+  assert(json_out_it != buffers_.end());
+
+  assert(span_recorder->size > 0);
+  const auto *root = span_recorder->spans.begin()->get();
+
+  using tracing::trace_id_to_str;
+  using tracing::span_id_to_str;
+
+  json_out_it->append_key("trace_id").append_string(trace_id_to_str(root->trace_id));
+  json_out_it->append_key("span_id").append_string(span_id_to_str(root->span_id));
+  json_out_it->append_key("name").append_string(root->name.c_str());
+  json_out_it->append_key("start_timestamp").append_integer(root->start_time.time_since_epoch().count());
+  json_out_it->append_key("end_timestamp").append_integer(root->end_time.time_since_epoch().count());
+
+// TODO: maintain distributed trace
+//
+//  if (root->parent) {
+//     json_out_it->append_key("parent_span_id").append_string(span_id_to_str(root->parent->span_id));
+//  }
+
+  json_out_it->append_key("spans").start<'['>();
+  for (int i = 1; i < span_recorder->size; ++i) {
+    json_out_it->start<'{'>();
+
+    const auto *span = span_recorder->spans[i].get();
+    json_out_it->append_key("trace_id").append_string(trace_id_to_str(span->trace_id));
+    json_out_it->append_key("span_id").append_string(span_id_to_str(span->span_id));
+    json_out_it->append_key("name").append_string(span->name.c_str());
+    json_out_it->append_key("start_timestamp").append_integer(span->start_time.time_since_epoch().count());
+    json_out_it->append_key("end_timestamp").append_integer(span->end_time.time_since_epoch().count());
+    assert(span->parent);
+    json_out_it->append_key("parent_span_id").append_string(span_id_to_str(span->parent->span_id));
+
+    json_out_it->finish<'}'>();
+  }
+  json_out_it->finish<']'>();
+
+  json_out_it->finish_json_and_flush(json_log_fd_);
 }
 
 void JsonLogger::reset_buffers() noexcept {

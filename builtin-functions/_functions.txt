@@ -19,6 +19,8 @@ require_once __DIR__ . '/spl.txt';
 require_once __DIR__ . '/ffi.txt';
 require_once __DIR__ . '/pdo/PDO.php';
 require_once __DIR__ . '/pdo/PDOStatement.php';
+require_once __DIR__ . '/tracing/Span.php';
+require_once __DIR__ . '/tracing/Tracer.php';
 
 interface Throwable {
     public function getMessage () ::: string;

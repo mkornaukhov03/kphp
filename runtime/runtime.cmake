@@ -36,6 +36,13 @@ prepend(KPHP_RUNTIME_PDO_SOURCES pdo/
         pdo_statement.cpp
         abstract_pdo_driver.cpp)
 
+prepend(KPHP_RUNTIME_TRACING_SOURCES tracing/
+        php_tracing.cpp
+        span.cpp
+        tracing.cpp
+        span_recorder.cpp
+)
+
 if(PDO_DRIVER_MYSQL)
 prepend(KPHP_RUNTIME_PDO_MYSQL_SOURCES pdo/mysql/
         mysql_pdo_driver.cpp
@@ -50,6 +57,7 @@ prepend(KPHP_RUNTIME_SOURCES ${BASE_DIR}/runtime/
         ${KPHP_RUNTIME_SPL_SOURCES}
         ${KPHP_RUNTIME_PDO_SOURCES}
         ${KPHP_RUNTIME_PDO_MYSQL_SOURCES}
+        ${KPHP_RUNTIME_TRACING_SOURCES}
         allocator.cpp
         array_functions.cpp
         bcmath.cpp
