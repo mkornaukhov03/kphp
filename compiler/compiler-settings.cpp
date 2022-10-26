@@ -339,12 +339,11 @@ void CompilerSettings::init() {
 
 #ifdef PDO_DRIVER_PGSQL
 #ifdef PDO_LIBS_STATIC_LINKING
-  // TODO: can we avoid this hardcoded library path?
   ld_flags.value_ += std::string(" -L /usr/lib/postgresql/") + std::to_string(PDO_DRIVER_PGSQL_VERSION) + std::string("/lib/ ");
   external_static_libs.emplace_back("pq");
   external_static_libs.emplace_back("pgcommon");
   external_static_libs.emplace_back("pgport");
-  // TODO: can we avoid dynamic linking in static linking?
+  // for libpq.a following common libraries are required
   external_libs.emplace_back("ldap");
   external_libs.emplace_back("gssapi_krb5");
 #else
