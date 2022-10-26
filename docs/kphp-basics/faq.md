@@ -40,7 +40,7 @@ KPHP type system is [much more expansive](../kphp-language/static-type-system/kp
 
 <blockquote class="faq">Is there something like "duck typing", regardless of strict typing?</blockquote>
 
-For this, you might want to read about [template functions](../kphp-language/howto-by-kphp/template-functions.md).
+For this, you might want to read about [generic functions](../kphp-language/static-type-system/generic-functions.md).
 
 
 <blockquote class="faq">Why can't KPHP compile my code?</blockquote>

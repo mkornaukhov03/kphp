@@ -606,3 +606,11 @@ Instead of trying to use that library directly, you can create your own small C 
 ```
 
 This is still more convenient even for PHP as you won't need to do all the complicated steps required to build a "native" C PHP extension.
+
+
+## Articles about using FFI in KPHP
+
+Here are some articles on Habr (in Russian) about integrating external libraries using FFI:
+
+* [Используем SQLite в KPHP и PHP через FFI](https://habr.com/ru/post/653677/)
+* [Встраиваем Lua в PHP через FFI](https://habr.com/ru/company/vk/blog/681400/)

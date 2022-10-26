@@ -129,7 +129,7 @@ This leads to *Error* with the message *"mix classes A and B"*, because type of 
 
 **Solutions.**
 1. Implement a common interface, so that *demo()* would accept this interface as a parameter
-2. Use [template functions](../kphp-language/howto-by-kphp/template-functions.md) 
+2. Use [generic functions](../kphp-language/static-type-system/generic-functions.md) 
 
 
 <blockquote class="faq">I specify PHP 7 class type hint, but KPHP doesn't prevent from passing <code>null</code></blockquote>
