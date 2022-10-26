@@ -343,7 +343,7 @@ void CompilerSettings::init() {
   external_static_libs.emplace_back("pq");
   external_static_libs.emplace_back("pgcommon");
   external_static_libs.emplace_back("pgport");
-  // for libpq.a following common libraries are required
+  // following common libraries are required for libpq.a
   external_libs.emplace_back("ldap");
   external_libs.emplace_back("gssapi_krb5");
 #else
